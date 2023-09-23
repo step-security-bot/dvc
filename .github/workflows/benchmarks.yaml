@@ -10,9 +10,14 @@ jobs:
     name: run benchmarks
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-python@v4
+      - name: Harden Runner
+        uses: step-security/harden-runner@8ca2b8b2ece13480cda6dacd3511b49857a23c09 # v2.5.1
+        with:
+          egress-policy: audit
+
+      - uses: actions/setup-python@61a6322f88396a6271a6ee3565807d608ecaddd1 # v4.7.0
         with:
             python-version: "3.11"
-      - uses: iterative/dvc-bench@main
+      - uses: iterative/dvc-bench@8cdf9177a261860990221e50ebd80ac522ceb72e # main
         with:
             pytest_options: "-k 'test_init or test_help'"
