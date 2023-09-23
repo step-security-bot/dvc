@@ -26,11 +26,16 @@ jobs:
         pyv: ["3.8", "3.9", "3.10", "3.11"]
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Harden Runner
+      uses: step-security/harden-runner@8ca2b8b2ece13480cda6dacd3511b49857a23c09 # v2.5.1
+      with:
+        egress-policy: audit
+
+    - uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
       with:
         fetch-depth: 0
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@61a6322f88396a6271a6ee3565807d608ecaddd1 # v4.7.0
       with:
         python-version: ${{ matrix.pyv }}
         cache: pip
@@ -39,7 +44,7 @@ jobs:
       run: |
         pip install --upgrade pip wheel
         pip install -e ".[dev]"
-    - uses: pre-commit/action@v3.0.0
+    - uses: pre-commit/action@646c83fcd040023954eafda54b4db0192ce70507 # v3.0.0
     - name: run tests
       timeout-minutes: 40
       env:
@@ -48,7 +53,7 @@ jobs:
         pytest -n=logical --timeout=300 --durations=100
         --cov --cov-report=xml --cov-report=term
     - name: upload coverage report
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@eaaf4bedf32dbdc6b720b63067d99c4d77d6047d # v3.1.4
       with:
         file: ./coverage.xml
         fail_ci_if_error: false
@@ -57,7 +62,12 @@ jobs:
     needs: [tests]
     runs-on: ubuntu-latest
     steps:
-      - uses: re-actors/alls-green@release/v1
+      - name: Harden Runner
+        uses: step-security/harden-runner@8ca2b8b2ece13480cda6dacd3511b49857a23c09 # v2.5.1
+        with:
+          egress-policy: audit
+
+      - uses: re-actors/alls-green@05ac9388f0aebcb5727afa17fcccfecd6f8ec5fe # release/v1
         with:
           jobs: ${{ toJSON(needs) }}
   notify:
@@ -65,8 +75,13 @@ jobs:
     needs: [tests]
     runs-on: ubuntu-latest
     steps:
+    - name: Harden Runner
+      uses: step-security/harden-runner@8ca2b8b2ece13480cda6dacd3511b49857a23c09 # v2.5.1
+      with:
+        egress-policy: audit
+
     - name: Slack Notification
-      uses: rtCamp/action-slack-notify@v2.2.1
+      uses: rtCamp/action-slack-notify@b24d75fe0e728a4bf9fc42ee217caa686d141ee8 # v2.2.1
       env:
         SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
         SLACK_COLOR: ${{ job.status }}
